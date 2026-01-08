@@ -4,6 +4,7 @@ import { useState, ChangeEvent } from "react";
 import { Camera, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
 export default function ScanPage() {
 
@@ -27,7 +28,55 @@ export default function ScanPage() {
     const handleAnalyze = async () => {
         if (!image) return;
 
-        alert("Sending to AI... (API not connected yet)");
+        setLoading(true);
+
+        try {
+            // 1. get the blob/base64 from the image url
+
+            const response = await fetch(image);
+            const blob = await response.blob();
+            
+            // convert blob to base64 string
+            
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = async () => {
+                const base64data = reader.result;
+
+                // 2. send to our api
+
+                const apiResponse = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type' : 'application/json'
+                    },
+                    body: JSON.stringify({image: base64data}),
+                });
+
+                const result = await apiResponse.json();
+
+                if (result.data) {
+                    // 3. insert into supabase (db)
+
+                    const { error } = await supabase.from('pantry_items').insert(result.data);
+
+                    if (error) {
+                        console.error("Supabase error:", error);
+                        alert("Failed to save items to database.");
+                    } else {
+                        // 4. success! redirect
+                        router.push('/pantry');
+                        // force refresh so data shows up
+                        router.refresh();
+                    }
+                }
+            };
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Something went wrong analyzing the receipt.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
