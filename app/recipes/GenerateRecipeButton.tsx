@@ -8,19 +8,28 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
 
   const handleGenerate = async () => {
     setLoading(true);
+    setRecipe(""); // Clear old recipe
     
-    // Simulate API Call
-    await new Promise(r => setTimeout(r, 2000));
-    
-    setRecipe(`
-      **Banana Bread Pudding**
-      1. Mashed Bananas
-      2. Mix with Milk & Eggs
-      3. Tear up Bread
-      4. Bake at 350°F for 45 mins.
-    `);
-    
-    setLoading(false);
+    try {
+      const response = await fetch('/api/recipe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredients }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.recipe) {
+        setRecipe(data.recipe);
+      } else {
+        alert("Failed to get a recipe. Try again!");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error generating recipe");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
