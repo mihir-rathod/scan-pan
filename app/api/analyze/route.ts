@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 
     // 1. Setup Gemini
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-exp" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // 2. Prepare Image (Strip the "data:image/jpeg;base64," header if present)
     const base64Data = image.includes("base64,") ? image.split("base64,")[1] : image;
