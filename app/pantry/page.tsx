@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import PantryItem from "@/components/PantryItem";
+import ClearPantryButton from "@/components/ClearPantryButton";
 
 interface PantryItem {
     id: number;
@@ -19,8 +20,12 @@ export default async function PantryPage() {
     return (
         <div className="p-4 pb-24"> {/* extra padding for bottom nav */}
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">My Pantry 🍎</h1>
-                <span className="text-sm text-gray-500">{items?.length || 0} items</span>
+                <div>
+                    <h1 className="text-2xl font-bold">My Pantry 🍎</h1>
+                    <span className="text-sm text-gray-500">{items?.length || 0} items</span>
+                </div>
+                {/* Only show button if there are items */}
+                {items && items.length > 0 && <ClearPantryButton />}
             </div>
             
             <div className="grid gap-4">
