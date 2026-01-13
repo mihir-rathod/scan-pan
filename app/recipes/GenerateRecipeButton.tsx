@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
 
 export default function GenerateRecipeButton({ ingredients }: { ingredients: string }) {
   const [recipe, setRecipe] = useState<string | null>(null);
@@ -8,7 +9,7 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
 
   const handleGenerate = async () => {
     setLoading(true);
-    setRecipe(""); // Clear old recipe
+    setRecipe(""); 
     
     try {
       const response = await fetch('/api/recipe', {
@@ -43,9 +44,12 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
       </button>
 
       {recipe && (
-        <div className="mt-8 p-6 bg-white border rounded-xl shadow-sm prose">
-          <h3 className="text-xl font-bold mb-2">Result:</h3>
-          <pre className="whitespace-pre-wrap font-sans text-gray-700">{recipe}</pre>
+        <div className="mt-8 p-6 bg-white border rounded-xl shadow-sm">
+          <h3 className="text-xl font-bold mb-4 border-b pb-2">Chef's Suggestion:</h3>
+          
+          <div className="prose prose-sm prose-slate max-w-none">
+             <ReactMarkdown>{recipe}</ReactMarkdown>
+          </div>
         </div>
       )}
     </div>
