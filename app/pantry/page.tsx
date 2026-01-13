@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import PantryItem from "@/components/PantryItem";
 
 interface PantryItem {
     id: number;
@@ -23,22 +24,8 @@ export default async function PantryPage() {
             </div>
             
             <div className="grid gap-4">
-                {items?.map((item: PantryItem) => (
-                    <div key={item.id} className="flex justify-between items-center p-4 bg-white border rounded-xl shadow-sm">
-                        <div>
-                            <h3 className="font-semibold text-lg">{item.name}</h3>
-                            <p className="text-gray-500 text-sm">{item.quantity}</p>
-                        </div>
-
-                        <div className="text-right">
-                            {/*Visual cue for expiry if it exists */}
-                            {item.expiry && (
-                                <span className="inline-block bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">
-                                    Exp: {item.expiry}
-                                </span>
-                            )}
-                        </div>
-                    </div>
+                {items?.map((item: any) => (
+                    <PantryItem key={item.id} item = {item} />
                 ))}
 
                 {items?.length === 0 && (
