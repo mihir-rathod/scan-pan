@@ -10,17 +10,13 @@ export default function ClearPantryButton() {
   const [loading, setLoading] = useState(false);
 
   const handleClearAll = async () => {
-    // 1. Double Confirm (Safety First)
     if (!confirm("⚠️ Are you sure you want to delete ALL items? This cannot be undone.")) return;
     
     setLoading(true);
-
-    // 2. Delete * from table
-    // Note: We user 'neq' (not equal) 0 to match all IDs, or just omit filter if RLS allows
     const { error } = await supabase
       .from('pantry_items')
       .delete()
-      .neq('id', 0); // Hack to delete all rows since we can't delete without a WHERE clause usually
+      .neq('id', 0);
 
     if (error) {
       console.error(error);

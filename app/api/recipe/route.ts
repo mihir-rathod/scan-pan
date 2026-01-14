@@ -21,8 +21,8 @@ export async function POST(req: Request) {
       {
         "title": "Recipe Title",
         "description": "Brief 1-sentence description",
-        "missing_ingredients": ["Item 1", "Item 2"], 
-        "markdown": "The full recipe in nice markdown format (Ingredients list + Instructions)"
+        "all_ingredients": ["2 cups Flour", "1 tsp Salt", "3 large Eggs"], 
+        "instructions": "A simple numbered list of steps. Use double newlines \\n\\n between steps for spacing."
       }
       
       Do NOT wrap the json in markdown code blocks.
@@ -32,7 +32,6 @@ export async function POST(req: Request) {
     const response = await result.response;
     let text = response.text();
 
-    // Clean up
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
 
     const data = JSON.parse(text);

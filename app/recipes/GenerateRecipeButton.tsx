@@ -45,7 +45,7 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
       description: recipeData.description,
       instructions: recipeData.instructions,
       created_at: new Date().toISOString(),
-      missing_ingredients: recipeData.missing_ingredients
+      ingredients: recipeData.all_ingredients
     });
     if (error) {
       alert("Failed to save.");
@@ -76,18 +76,21 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
             <p className="text-sm text-orange-700 mt-1">{recipeData.description}</p>
           </div>
 
-          {recipeData.missing_ingredients?.length > 0 && (
-            <div className="bg-yellow-50 p-3 text-sm text-yellow-800 border-b border-yellow-100 flex gap-2 items-start">
-              <ShoppingCart size={16} className="mt-0.5" />
-              <div>
-                <span className="font-semibold">You might need to buy: </span>
-                {recipeData.missing_ingredients.join(", ")}
-              </div>
+          {recipeData.all_ingredients?.length > 0 && (
+            <div className="bg-gray-50 p-4 border-b border-gray-100">
+              <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                <ShoppingCart size={16} /> Ingredients:
+              </h4>
+              <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                {recipeData.all_ingredients.map((item: string, i: number) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
             </div>
           )}
 
           <div className="p-6 prose prose-sm prose-slate max-w-none">
-            <ReactMarkdown>{recipeData.markdown}</ReactMarkdown>
+            <ReactMarkdown>{recipeData.instructions}</ReactMarkdown>
           </div>
 
           <div className="flex border-t divide-x">
