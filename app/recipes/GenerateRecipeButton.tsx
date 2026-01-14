@@ -44,7 +44,8 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
       title: recipeData.title,
       description: recipeData.description,
       instructions: recipeData.instructions,
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      missing_ingredients: recipeData.missing_ingredients
     });
     if (error) {
       alert("Failed to save.");
