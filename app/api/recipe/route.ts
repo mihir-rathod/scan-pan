@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const { ingredients } = await req.json();
 
     if (!ingredients) {
-        return NextResponse.json({ error: "No ingredients provided" }, { status: 400 });
+      return NextResponse.json({ error: "No ingredients provided" }, { status: 400 });
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       {
         "title": "Recipe Title",
         "description": "Brief 1-sentence description",
-        "missing_ingredients": ["Item 1", "Item 2"], // List specific items I might need to buy (excluding basic staples)
+        "missing_ingredients": ["Item 1", "Item 2"], 
         "markdown": "The full recipe in nice markdown format (Ingredients list + Instructions)"
       }
       
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
     // Clean up
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    
+
     const data = JSON.parse(text);
 
     return NextResponse.json({ recipe: data });
