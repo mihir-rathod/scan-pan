@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         "title": "Recipe Title",
         "description": "Brief 1-sentence description",
         "all_ingredients": ["2 cups Flour", "1 tsp Salt", "3 large Eggs"], 
-        "instructions": "A simple numbered list of steps. Use double newlines \\n\\n between steps for spacing."
+        "instructions": "A properly formatted Markdown numbered list. Example:\n1. First step\n2. Second Step\n\nEnsure there are newlines between items."
       }
       
       Do NOT wrap the json in markdown code blocks.

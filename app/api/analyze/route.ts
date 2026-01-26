@@ -17,8 +17,10 @@ export async function POST(req: Request) {
     const prompt = `
       Analyze this image of a receipt or grocery items. 
       Identify the food items.
+      Format item names nicely: Use Title Case, remove receipt codes/numbers, and fix abbreviations.
+      (e.g. Convert "BANANA ORG 4011" to "Organic Bananas", "MLK 1GAL" to "Whole Milk").
       Return ONLY a valid JSON array. Each object must have:
-      - "name": string (item name)
+      - "name": string (Clean, human-readable name)
       - "quantity": string (e.g. "1 gal", "2 count")
       - "expiry": string (estimated expiry date YYYY-MM-DD based on item type. e.g. Milk = today + 7 days)
       

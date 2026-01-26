@@ -73,7 +73,7 @@ export default function SavedRecipeCard({ recipe }: { recipe: Recipe }) {
                     <span>View Instructions</span>
                     <span className="text-gray-400 group-open:rotate-180 transition-transform">▼</span>
                 </summary>
-                <div className="p-4 pt-0 prose prose-sm max-w-none border-t border-gray-100 bg-gray-50/50">
+                <div className="p-4 pt-0 prose prose-sm prose-slate max-w-none border-t border-gray-100 bg-gray-50/50">
                     <ReactMarkdown>{recipe.instructions}</ReactMarkdown>
                 </div>
             </details>
