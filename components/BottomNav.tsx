@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ScanLine, ChefHat } from "lucide-react";
+import { Home, ScanLine, ChefHat, Book } from "lucide-react";
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -34,6 +34,14 @@ export default function BottomNav() {
         >
           <ChefHat size={24} />
           <span className="text-xs font-medium">Recipes</span>
+        </Link>
+
+        <Link 
+          href="/saved" 
+          className={`flex flex-col items-center gap-1 ${isActive('/saved') ? 'text-black' : 'text-gray-400'}`}
+        >
+          <Book size={24} />
+          <span className="text-xs font-medium">Saved</span>
         </Link>
       </div>
     </nav>

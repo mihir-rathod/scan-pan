@@ -1,42 +1,116 @@
 "use client";
 
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import { RefreshCw, Save, ShoppingCart } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 export default function GenerateRecipeButton({ ingredients }: { ingredients: string }) {
-  const [recipe, setRecipe] = useState<string | null>(null);
+
+  const [recipeData, setRecipeData] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleGenerate = async () => {
     setLoading(true);
-    
-    // Simulate API Call
-    await new Promise(r => setTimeout(r, 2000));
-    
-    setRecipe(`
-      **Banana Bread Pudding**
-      1. Mashed Bananas
-      2. Mix with Milk & Eggs
-      3. Tear up Bread
-      4. Bake at 350°F for 45 mins.
-    `);
-    
-    setLoading(false);
+    setRecipeData(null);
+
+    try {
+      const response = await fetch('/api/recipe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredients }),
+      });
+
+      const data = await response.json();
+
+      if (data.recipe) {
+        setRecipeData(data.recipe);
+      } else {
+        alert("Failed. Try again.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error generating recipe");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+
+    const { error } = await supabase.from('saved_recipes').insert({
+      title: recipeData.title,
+      description: recipeData.description,
+      instructions: recipeData.instructions,
+      created_at: new Date().toISOString(),
+      ingredients: recipeData.all_ingredients
+    });
+    if (error) {
+      alert("Failed to save.");
+      console.error(error);
+    } else {
+      alert("Recipe Saved! 📖");
+      router.push('/saved');
+    }
   };
 
   return (
     <div>
-      <button
-        onClick={handleGenerate}
-        disabled={loading || !ingredients}
-        className="w-full bg-black text-white font-bold py-4 rounded-xl shadow-lg hover:scale-[1.02] transition-transform disabled:opacity-50"
-      >
-        {loading ? "Thinking..." : "Generate Recipe 🍳"}
-      </button>
 
-      {recipe && (
-        <div className="mt-8 p-6 bg-white border rounded-xl shadow-sm prose">
-          <h3 className="text-xl font-bold mb-2">Result:</h3>
-          <pre className="whitespace-pre-wrap font-sans text-gray-700">{recipe}</pre>
+      {!recipeData && (
+        <button
+          onClick={handleGenerate}
+          disabled={loading || !ingredients}
+          className="w-full bg-black text-white font-bold py-4 rounded-xl shadow-lg hover:scale-[1.02] transition-transform disabled:opacity-50"
+        >
+          {loading ? "Chef is thinking... 👨‍🍳" : "Generate Recipe 🍳"}
+        </button>
+      )}
+
+      {recipeData && (
+        <div className="mt-8 bg-white border rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-orange-50 p-4 border-b border-orange-100">
+            <h3 className="text-xl font-bold text-orange-900">{recipeData.title}</h3>
+            <p className="text-sm text-orange-700 mt-1">{recipeData.description}</p>
+          </div>
+
+          {recipeData.all_ingredients?.length > 0 && (
+            <div className="bg-gray-50 p-4 border-b border-gray-100">
+              <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                <ShoppingCart size={16} /> Ingredients:
+              </h4>
+              <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                {recipeData.all_ingredients.map((item: string, i: number) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="p-6 prose prose-sm prose-slate max-w-none">
+            <ReactMarkdown>{recipeData.instructions}</ReactMarkdown>
+          </div>
+
+          <div className="flex border-t divide-x">
+            <button
+              onClick={handleGenerate}
+              disabled={loading}
+              className="flex-1 py-4 flex items-center justify-center gap-2 hover:bg-gray-50 text-gray-600 transition-colors"
+            >
+              <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
+              {loading ? "Cooking..." : "New Recipe"}
+            </button>
+
+            <button
+              onClick={handleSave}
+              className="flex-1 py-4 flex items-center justify-center gap-2 hover:bg-green-50 text-green-600 font-semibold transition-colors"
+            >
+              <Save size={20} />
+              Save This
+            </button>
+          </div>
         </div>
       )}
     </div>
