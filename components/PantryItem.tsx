@@ -1,8 +1,7 @@
 "use client";
 
 import { Trash2, Edit2, Check, X } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { deletePantryItem, updatePantryItem } from "@/lib/pantry-actions";
 import { useState } from "react";
 
 interface Props {
@@ -15,36 +14,21 @@ interface Props {
 }
 
 export default function PantryItem({ item }: Props) {
-  const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-
 
   const [name, setName] = useState(item.name);
   const [qty, setQty] = useState(item.quantity);
 
-
   const handleDelete = async () => {
     if (!confirm("Delete this item?")) return;
     setIsDeleting(true);
-    const { error } = await supabase.from('pantry_items').delete().eq('id', item.id);
-    if (!error) router.refresh();
+    await deletePantryItem(item.id);
   };
 
-
   const handleSave = async () => {
-
-    const { error } = await supabase
-      .from('pantry_items')
-      .update({ name: name, quantity: qty }) // Update fields
-      .eq('id', item.id);
-
-    if (!error) {
-      setIsEditing(false);
-      router.refresh();
-    } else {
-      alert("Failed to update");
-    }
+    await updatePantryItem(item.id, name, qty);
+    setIsEditing(false);
   };
 
   return (

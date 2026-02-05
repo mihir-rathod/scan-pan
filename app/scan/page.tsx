@@ -4,103 +4,90 @@ import { useState, ChangeEvent } from "react";
 import { Camera, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { addPantryItems } from "@/lib/pantry-actions";
 
 export default function ScanPage() {
 
-    const router = useRouter();
+  const router = useRouter();
 
-    const [image, setImage] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null>(null);
 
-    const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    const handleCapture = (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            setLoading(true);
-            
-            const url = URL.createObjectURL(file);
-            setImage(url);
-            setLoading(false);
+  const handleCapture = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLoading(true);
+
+      const url = URL.createObjectURL(file);
+      setImage(url);
+      setLoading(false);
+    }
+  };
+
+  const handleAnalyze = async () => {
+    if (!image) return;
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(image);
+      const blob = await response.blob();
+
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = async () => {
+        const base64data = reader.result;
+
+        const apiResponse = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: base64data }),
+        });
+
+        const result = await apiResponse.json();
+
+        if (result.data) {
+          try {
+            await addPantryItems(result.data);
+            router.push('/pantry');
+            router.refresh();
+          } catch (err) {
+            console.error("DB error:", err);
+            alert("Failed to save items.");
+          }
         }
-    };
+      };
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Something went wrong analyzing the receipt.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const handleAnalyze = async () => {
-        if (!image) return;
-
-        setLoading(true);
-
-        try {
-            // 1. get the blob/base64 from the image url
-
-            const response = await fetch(image);
-            const blob = await response.blob();
-            
-            // convert blob to base64 string
-            
-            const reader = new FileReader();
-            reader.readAsDataURL(blob);
-            reader.onloadend = async () => {
-                const base64data = reader.result;
-
-                // 2. send to our api
-
-                const apiResponse = await fetch('/api/analyze', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type' : 'application/json'
-                    },
-                    body: JSON.stringify({image: base64data}),
-                });
-
-                const result = await apiResponse.json();
-
-                if (result.data) {
-                    // 3. insert into supabase (db)
-
-                    const { error } = await supabase.from('pantry_items').insert(result.data);
-
-                    if (error) {
-                        console.error("Supabase error:", error);
-                        alert("Failed to save items to database.");
-                    } else {
-                        // 4. success! redirect
-                        router.push('/pantry');
-                        // force refresh so data shows up
-                        router.refresh();
-                    }
-                }
-            };
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Something went wrong analyzing the receipt.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="flex flex-col items-center justify-start min-h-screen p-6 pt-12 pb-24">
+  return (
+    <div className="flex flex-col items-center justify-start min-h-screen p-6 pt-12 pb-24">
       <div className="w-full max-w-md text-center mb-8">
         <h1 className="text-3xl font-bold mb-2">Add Receipt 🧾</h1>
         <p className="text-gray-500">Snap a photo or upload to update your pantry.</p>
       </div>
       {/* The Upload Box */}
       <div className="relative w-full max-w-sm aspect-[3/4] bg-gray-100 rounded-3xl border-2 border-dashed border-gray-300 overflow-hidden shadow-sm hover:bg-gray-50 transition-colors">
-        
+
         {/* If image exists, show it. If not, show the 'Tap to Snap' prompt */}
         {image ? (
           <>
-             {/* Preview Image */}
-             <img src={image} alt="Receipt Preview" className="w-full h-full object-cover" />
-             
-             {/* 'Retake' Button overlay */}
-             <button 
-               onClick={() => setImage(null)}
-               className="absolute top-4 right-4 bg-white/80 p-2 rounded-full shadow-md text-gray-700 hover:bg-white"
-             >
-               ✕
-             </button>
+            {/* Preview Image */}
+            <img src={image} alt="Receipt Preview" className="w-full h-full object-cover" />
+
+            {/* 'Retake' Button overlay */}
+            <button
+              onClick={() => setImage(null)}
+              className="absolute top-4 right-4 bg-white/80 p-2 rounded-full shadow-md text-gray-700 hover:bg-white"
+            >
+              ✕
+            </button>
           </>
         ) : (
           <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer">
@@ -109,13 +96,13 @@ export default function ScanPage() {
             </div>
             <span className="font-semibold text-lg text-gray-700">Tap to Snap</span>
             <span className="text-sm text-gray-400 mt-2">or upload file</span>
-            
+
             {/* Hidden Input field */}
-            <input 
-              type="file" 
-              accept="image/*" 
+            <input
+              type="file"
+              accept="image/*"
               capture="environment" // Forces rear camera on mobile
-              className="hidden" 
+              className="hidden"
               onChange={handleCapture}
             />
           </label>
@@ -126,15 +113,14 @@ export default function ScanPage() {
         <Link href="/pantry" className="flex-1 py-4 text-center rounded-2xl font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
           Cancel
         </Link>
-        
-        <button 
+
+        <button
           onClick={handleAnalyze}
           disabled={!image || loading}
-          className={`flex-1 py-4 text-center rounded-2xl font-bold shadow-lg transition-all ${
-            image 
-              ? "bg-blue-600 text-white hover:bg-blue-700 hover:transform hover:scale-[1.02]" 
-              : "bg-gray-200 text-gray-400 cursor-not-allowed shadow-none"
-          }`}
+          className={`flex-1 py-4 text-center rounded-2xl font-bold shadow-lg transition-all ${image
+            ? "bg-blue-600 text-white hover:bg-blue-700 hover:transform hover:scale-[1.02]"
+            : "bg-gray-200 text-gray-400 cursor-not-allowed shadow-none"
+            }`}
         >
           {loading ? "Processing..." : "Analyze"}
         </button>

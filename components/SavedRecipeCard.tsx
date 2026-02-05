@@ -3,8 +3,7 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Trash2, ShoppingCart } from "lucide-react";
-import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { deleteRecipe } from "@/lib/recipe-actions";
 
 interface Recipe {
     id: number;
@@ -15,7 +14,6 @@ interface Recipe {
 }
 
 export default function SavedRecipeCard({ recipe }: { recipe: Recipe }) {
-    const router = useRouter();
     const [isDeleting, setIsDeleting] = useState(false);
 
     const missing = Array.isArray(recipe.ingredients)
@@ -26,13 +24,11 @@ export default function SavedRecipeCard({ recipe }: { recipe: Recipe }) {
         if (!confirm("Remove this recipe from cookbook?")) return;
 
         setIsDeleting(true);
-        const { error } = await supabase.from('saved_recipes').delete().eq('id', recipe.id);
-
-        if (error) {
+        try {
+            await deleteRecipe(recipe.id);
+        } catch (e) {
             alert("Error deleting");
             setIsDeleting(false);
-        } else {
-            router.refresh();
         }
     };
 

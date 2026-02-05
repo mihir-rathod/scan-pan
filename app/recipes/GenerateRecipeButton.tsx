@@ -3,7 +3,7 @@
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { RefreshCw, Save, ShoppingCart } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { saveRecipe } from "@/lib/recipe-actions";
 import { useRouter } from "next/navigation";
 
 export default function GenerateRecipeButton({ ingredients }: { ingredients: string }) {
@@ -39,26 +39,23 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
   };
 
   const handleSave = async () => {
-
-    const { error } = await supabase.from('saved_recipes').insert({
-      title: recipeData.title,
-      description: recipeData.description,
-      instructions: recipeData.instructions,
-      created_at: new Date().toISOString(),
-      ingredients: recipeData.all_ingredients
-    });
-    if (error) {
-      alert("Failed to save.");
-      console.error(error);
-    } else {
+    try {
+      await saveRecipe({
+        title: recipeData.title,
+        description: recipeData.description,
+        instructions: recipeData.instructions,
+        all_ingredients: recipeData.all_ingredients
+      });
       alert("Recipe Saved! 📖");
       router.push('/saved');
+    } catch (e) {
+      console.error(e);
+      alert("Failed to save.");
     }
   };
 
   return (
     <div>
-
       {!recipeData && (
         <button
           onClick={handleGenerate}
