@@ -55,13 +55,13 @@ export default function AddItemButton() {
       {/* Modal Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 animate-fade-in"
+          className="fixed inset-0 z-[100] flex items-end justify-center bg-black/40 animate-fade-in"
           onClick={(e) => {
             if (e.target === e.currentTarget) setIsOpen(false);
           }}
         >
           {/* Slide-up modal */}
-          <div className="w-full max-w-lg bg-white rounded-t-3xl p-6 pb-10 animate-slide-up shadow-elevated">
+          <div className="w-full max-w-lg bg-white rounded-t-3xl p-6 pb-24 animate-slide-up shadow-elevated">
             {/* Handle bar */}
             <div className="flex justify-center mb-4">
               <div className="w-10 h-1 bg-stone-200 rounded-full" />
