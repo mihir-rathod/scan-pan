@@ -28,5 +28,5 @@ export async function registerUser(prevState: any, formData: FormData) {
         throw e;
     }
 
-    redirect("/api/auth/signin");
+    redirect("/login");
 }

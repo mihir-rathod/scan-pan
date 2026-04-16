@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import ReactMarkdown from "react-markdown";
-import { RefreshCw, Save, ShoppingCart, ChefHat } from "lucide-react";
+import { RefreshCw, Save, ShoppingCart, ChefHat, Lock, Unlock } from "lucide-react";
 import { saveRecipe } from "@/lib/recipe-actions";
 import { useRouter } from "next/navigation";
 
@@ -10,6 +10,7 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
   const [recipeData, setRecipeData] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [strictMode, setStrictMode] = useState(true);
   const router = useRouter();
 
   const handleGenerate = async () => {
@@ -21,7 +22,7 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
       const response = await fetch("/api/recipe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ingredients }),
+        body: JSON.stringify({ ingredients, strictMode }),
       });
 
       const data = await response.json();
@@ -57,6 +58,55 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
 
   return (
     <div>
+      {/* Strict / Flexible Toggle */}
+      <div className="mb-5">
+        <button
+          id="recipe-mode-toggle"
+          onClick={() => setStrictMode(!strictMode)}
+          className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all ${
+            strictMode
+              ? "bg-brand-50 border-brand-200"
+              : "bg-violet-50 border-violet-200"
+          }`}
+        >
+          <div className="flex items-center gap-3">
+            {strictMode ? (
+              <div className="p-2 bg-brand-100 rounded-xl">
+                <Lock size={18} className="text-brand-600" />
+              </div>
+            ) : (
+              <div className="p-2 bg-violet-100 rounded-xl">
+                <Unlock size={18} className="text-violet-600" />
+              </div>
+            )}
+            <div className="text-left">
+              <p className={`font-semibold text-sm ${strictMode ? "text-brand-800" : "text-violet-800"}`}>
+                {strictMode ? "Pantry Only" : "Open Suggestions"}
+              </p>
+              <p className="text-xs text-stone-400 mt-0.5">
+                {strictMode
+                  ? "Use only what's in your pantry"
+                  : "May suggest 1–2 extra ingredients to buy"}
+              </p>
+            </div>
+          </div>
+
+          {/* Toggle switch */}
+          <div
+            className={`relative w-11 h-6 rounded-full transition-colors ${
+              strictMode ? "bg-brand-400" : "bg-violet-400"
+            }`}
+          >
+            <div
+              className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${
+                strictMode ? "left-0.5" : "left-[22px]"
+              }`}
+            />
+          </div>
+        </button>
+      </div>
+
+      {/* Generate Button */}
       {!recipeData && (
         <button
           id="generate-recipe-btn"
@@ -75,6 +125,7 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
         </button>
       )}
 
+      {/* Recipe Card */}
       {recipeData && (
         <div className="mt-4 bg-white rounded-2xl shadow-md border border-stone-100 overflow-hidden animate-scale-in">
           {/* Header */}
@@ -90,16 +141,32 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
                 <ShoppingCart size={16} className="text-brand-500" /> Ingredients
               </h4>
               <ul className="grid gap-1.5">
-                {recipeData.all_ingredients.map((item: string, i: number) => (
-                  <li
-                    key={i}
-                    className="flex items-center gap-2 text-sm text-stone-600"
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-brand-400 flex-shrink-0" />
-                    {item}
-                  </li>
-                ))}
+                {recipeData.all_ingredients.map((item: string, i: number) => {
+                  const needToBuy = item.toLowerCase().includes("(need to buy)");
+                  return (
+                    <li
+                      key={i}
+                      className={`flex items-center gap-2 text-sm ${
+                        needToBuy ? "text-violet-600 font-medium" : "text-stone-600"
+                      }`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                          needToBuy ? "bg-violet-400" : "bg-brand-400"
+                        }`}
+                      />
+                      {item}
+                    </li>
+                  );
+                })}
               </ul>
+              {!strictMode && recipeData.all_ingredients.some((item: string) =>
+                item.toLowerCase().includes("(need to buy)")
+              ) && (
+                <p className="text-xs text-violet-400 mt-3 flex items-center gap-1">
+                  <Unlock size={11} /> Purple items need to be purchased
+                </p>
+              )}
             </div>
           )}
 
