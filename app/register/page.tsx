@@ -2,13 +2,14 @@
 
 import { registerUser } from "@/lib/actions";
 import Link from "next/link";
-import { useActionState } from "react";
-import { UserPlus } from "lucide-react";
+import { useActionState, useState } from "react";
+import { UserPlus, Eye, EyeOff } from "lucide-react";
 
 const initialState = { error: "" };
 
 export default function RegisterPage() {
   const [state, formAction] = useActionState(registerUser, initialState);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen gradient-warm p-6">
@@ -55,15 +56,24 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-sm font-medium text-stone-600 mb-1.5">Password</label>
-              <input
-                id="register-password"
-                name="password"
-                type="password"
-                className="w-full border border-stone-200 rounded-xl p-3 text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent transition-all"
-                required
-                minLength={6}
-                placeholder="••••••"
-              />
+              <div className="relative">
+                <input
+                  id="register-password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  className="w-full border border-stone-200 rounded-xl p-3 text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent transition-all pr-12"
+                  required
+                  minLength={6}
+                  placeholder="••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-stone-400 hover:text-stone-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
             <button
