@@ -40,12 +40,19 @@
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-surface); /* Matches most of the app */
+}
+
+/* Specific background for the landing page to prevent white overscroll patches */
+html:has(.gradient-hero) {
+  background-color: #1C1917;
 }
 
 body {
   background-color: var(--color-surface);
   color: #1C1917;
   min-height: 100dvh;
+  margin: 0;
 }
 
 /* ========================================

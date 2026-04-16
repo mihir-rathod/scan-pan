@@ -37,36 +37,36 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen gradient-hero text-white overflow-hidden">
+    <div className="min-h-screen gradient-hero text-white">
       {/* Hero Section */}
-      <div className="relative flex flex-col items-center justify-center px-6 pt-20 pb-16 text-center">
+      <div className="relative flex flex-col items-center justify-center px-6 pt-10 pb-8 text-center">
         {/* Floating emoji */}
-        <div className="animate-float mb-6">
-          <span className="text-7xl drop-shadow-lg">🍳</span>
+        <div className="animate-float mb-4">
+          <span className="text-5xl drop-shadow-lg">🍳</span>
         </div>
 
-        <h1 className="text-5xl font-extrabold tracking-tight animate-slide-up">
+        <h1 className="text-4xl font-extrabold tracking-tight animate-slide-up">
           Scan<span className="text-brand-400">Pan</span>
         </h1>
 
-        <p className="mt-4 text-lg text-stone-300 max-w-xs animate-slide-up delay-1">
+        <p className="mt-4 text-lg text-stone-300 max-w-sm animate-slide-up delay-1">
           AI Recipe Lab.
           <br />
           Scan receipts. Track pantry. Cook smarter.
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex flex-col gap-3 mt-10 w-full max-w-xs animate-slide-up delay-2">
+        <div className="flex flex-col gap-2.5 mt-8 w-full max-w-xs animate-slide-up delay-2">
           <Link
             href="/register"
-            className="flex items-center justify-center gap-2 px-8 py-4 text-lg font-semibold rounded-2xl gradient-brand text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all btn-press"
+            className="flex items-center justify-center gap-2 px-8 py-3.5 text-lg font-semibold rounded-2xl gradient-brand text-white shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all btn-press"
           >
             Get Started <ArrowRight className="w-5 h-5" />
           </Link>
 
           <Link
             href="/login"
-            className="flex items-center justify-center px-8 py-4 text-lg font-medium rounded-2xl border border-white/20 text-white/90 hover:bg-white/10 transition-all"
+            className="flex items-center justify-center px-8 py-3 text-base font-medium rounded-2xl border border-white/20 text-white/90 hover:bg-white/10 transition-all"
           >
             I have an account
           </Link>
@@ -79,7 +79,7 @@ export default async function Home() {
           {FEATURES.map((feature, i) => (
             <div
               key={feature.title}
-              className={`flex items-start gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm animate-slide-up delay-${i + 3}`}
+              className={`flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm animate-slide-up delay-${i + 3}`}
             >
               <div className={`p-3 rounded-xl ${feature.bg}`}>
                 <feature.icon size={24} className={feature.color} />
