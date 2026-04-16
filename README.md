@@ -16,7 +16,7 @@
 |---------|-------------|
 | 📸 **AI Receipt Scanner** | Snap a photo of any grocery receipt — Gemini Vision AI extracts items, cleans up names, estimates expiry dates, and categorizes each item automatically |
 | 🧺 **Smart Pantry Tracker** | Full CRUD management of pantry items with color-coded expiry indicators (expired/expiring/fresh), category tagging, and manual add support |
-| 👨‍🍳 **AI Recipe Generator** | Get creative, single-click recipe suggestions based on exactly what's in your pantry — powered by Gemini 2.5 Flash |
+| 👨‍🍳 **AI Recipe Generator** | Get creative, single-click recipe suggestions powered by Gemini 2.5 Flash — toggle between **Pantry Only** mode (strict) or **Open Suggestions** mode that may recommend 1–2 extra ingredients to buy |
 | 📖 **Personal Cookbook** | Save your favorite AI-generated recipes with full ingredients and Markdown-rendered instructions |
 | 🔐 **Secure Authentication** | Email/password auth with bcrypt hashing and JWT sessions via NextAuth.js |
 | 📱 **Mobile-First PWA** | Installable as a Progressive Web App with bottom navigation, skeleton loading states, and safe-area support |
@@ -147,6 +147,28 @@ scan-pan/
 └── public/
     └── manifest.json              # PWA manifest
 ```
+
+---
+
+## 🌐 Deployment (Vercel + Supabase)
+
+1. Push your code to GitHub
+2. Import the repo on [vercel.com/new](https://vercel.com/new)
+3. Set environment variables on Vercel:
+
+| Variable | Value |
+|----------|-------|
+| `DATABASE_URL` | Supabase connection string (Settings → Database → Connection String → URI) |
+| `GOOGLE_API_KEY` | Your Gemini API key |
+| `AUTH_SECRET` | `openssl rand -base64 32` |
+
+4. Initialize the production database:
+
+```bash
+DATABASE_URL="your-supabase-url" node scripts/init-db.js
+```
+
+5. Deploy — the app will be live at `your-project.vercel.app`
 
 ---
 
