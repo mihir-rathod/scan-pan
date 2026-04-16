@@ -22,11 +22,12 @@ export default function ClearPantryButton() {
 
   return (
     <button
+      id="clear-pantry-btn"
       onClick={handleClearAll}
       disabled={loading}
-      className="text-red-500 text-sm font-medium flex items-center gap-1 hover:bg-red-50 px-3 py-1 rounded-lg transition-colors"
+      className="text-red-400 text-sm font-medium flex items-center gap-1.5 hover:bg-red-50 px-3 py-1.5 rounded-xl transition-colors"
     >
-      <Trash size={14} />
+      <Trash size={13} />
       {loading ? "Clearing..." : "Clear All"}
     </button>
   );

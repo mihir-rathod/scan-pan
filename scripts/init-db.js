@@ -39,6 +39,7 @@ async function main() {
         name TEXT NOT NULL,
         quantity TEXT,
         expiry TEXT,
+        category TEXT,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);
@@ -57,6 +58,20 @@ async function main() {
       );
     `);
         console.log("✅ Saved Recipes table ensured.");
+
+        // 4. Add category column if it doesn't exist (migration for existing DBs)
+        await client.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'pantry_items' AND column_name = 'category'
+        ) THEN
+          ALTER TABLE pantry_items ADD COLUMN category TEXT;
+        END IF;
+      END $$;
+    `);
+        console.log("✅ Category column ensured.");
 
         await client.query('COMMIT');
         console.log("🚀 Database setup complete!");

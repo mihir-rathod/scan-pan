@@ -19,13 +19,15 @@ export async function POST(req: Request) {
       Identify the food items.
       Format item names nicely: Use Title Case, remove receipt codes/numbers, and fix abbreviations.
       (e.g. Convert "BANANA ORG 4011" to "Organic Bananas", "MLK 1GAL" to "Whole Milk").
+      
       Return ONLY a valid JSON array. Each object must have:
       - "name": string (Clean, human-readable name)
       - "quantity": string (e.g. "1 gal", "2 count")
-      - "expiry": string (estimated expiry date YYYY-MM-DD based on item type. e.g. Milk = today + 7 days)
+      - "expiry": string (estimated expiry date YYYY-MM-DD based on item type. e.g. Milk = today + 7 days, Bread = today + 5 days, Canned goods = today + 365 days)
+      - "category": string (one of: "Produce", "Dairy", "Protein", "Grain", "Beverage", "Snack", "Other")
       
       Example output:
-      [{"name": "Milk", "quantity": "1 gal", "expiry": "2025-01-20"}]
+      [{"name": "Whole Milk", "quantity": "1 gal", "expiry": "2025-01-20", "category": "Dairy"}]
       
       Do NOT wrap in markdown code blocks. Just raw JSON.
     `;
@@ -43,10 +45,7 @@ export async function POST(req: Request) {
     const response = await result.response;
     let text = response.text();
 
-
-
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
-
 
     const items = JSON.parse(text);
 
@@ -54,6 +53,6 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error("AI Error:", error);
-    return NextResponse.json({ error: "Failed to analyze receipt" }, { status: 500 }); // Return 500 so frontend knows it failed
+    return NextResponse.json({ error: "Failed to analyze receipt" }, { status: 500 });
   }
 }
