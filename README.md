@@ -1,4 +1,4 @@
-# 🍳 ScanPan — AI-Powered Kitchen Assistant
+# 🍳 ScanPan: AI Recipe Lab
 
 > Scan receipts, track your pantry, and get AI-generated recipes based on what you have.
 
@@ -170,8 +170,4 @@ DATABASE_URL="your-supabase-url" node scripts/init-db.js
 
 5. Deploy — the app will be live at `your-project.vercel.app`
 
----
 
-## 📄 License
-
-MIT © Mihir Rathod

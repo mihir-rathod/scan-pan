@@ -1,7 +1,7 @@
 {
   "name": "ScanPan",
   "short_name": "ScanPan",
-  "description": "AI-powered kitchen assistant — scan receipts, track your pantry, and get recipe suggestions.",
+  "description": "ScanPan: AI Recipe Lab — scan receipts, track your pantry, and get recipe suggestions.",
   "start_url": "/pantry",
   "display": "standalone",
   "background_color": "#FAFAF9",

@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "ScanPan — AI Kitchen Assistant",
+  title: "ScanPan: AI Recipe Lab",
   description:
     "Scan receipts, track your pantry, and get AI-powered recipe suggestions based on what you have.",
   manifest: "/manifest.json",
@@ -18,6 +18,10 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "ScanPan",
+  },
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
   },
 };
 

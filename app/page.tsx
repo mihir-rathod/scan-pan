@@ -50,7 +50,7 @@ export default async function Home() {
         </h1>
 
         <p className="mt-4 text-lg text-stone-300 max-w-xs animate-slide-up delay-1">
-          Your AI-powered kitchen assistant.
+          AI Recipe Lab.
           <br />
           Scan receipts. Track pantry. Cook smarter.
         </p>
