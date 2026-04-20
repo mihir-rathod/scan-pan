@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
 
     const strictPrompt = `
       I have ONLY these ingredients: ${ingredients}.

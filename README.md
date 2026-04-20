@@ -4,7 +4,7 @@
 
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript)
-![Gemini](https://img.shields.io/badge/Gemini_2.5_Flash-AI-4285F4?logo=google)
+![Gemini](https://img.shields.io/badge/Gemini_3.1_Multimodal-AI-4285F4?logo=google)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss)
 
@@ -14,9 +14,9 @@
 
 | Feature | Description |
 |---------|-------------|
-| 📸 **AI Receipt Scanner** | Snap a photo of any grocery receipt — Gemini Vision AI extracts items, cleans up names, estimates expiry dates, and categorizes each item automatically |
+| 📸 **AI Receipt Scanner** | Snap a photo of any grocery receipt — Gemini 3.1 Multimodal AI extracts items, cleans up names, estimates expiry dates, and categorizes each item automatically |
 | 🧺 **Smart Pantry Tracker** | Full CRUD management of pantry items with color-coded expiry indicators (expired/expiring/fresh), category tagging, and manual add support |
-| 👨‍🍳 **AI Recipe Generator** | Get creative, single-click recipe suggestions powered by Gemini 2.5 Flash — toggle between **Pantry Only** mode (strict) or **Open Suggestions** mode that may recommend 1–2 extra ingredients to buy |
+| 👨‍🍳 **AI Recipe Generator** | Get creative, single-click recipe suggestions powered by Gemini 3.1 Flash-Lite — toggle between **Pantry Only** mode (strict) or **Open Suggestions** mode that may recommend 1–2 extra ingredients to buy |
 | 📖 **Personal Cookbook** | Save your favorite AI-generated recipes with full ingredients and Markdown-rendered instructions |
 | 🔐 **Secure Authentication** | Email/password auth with bcrypt hashing and JWT sessions via NextAuth.js |
 | 📱 **Mobile-First PWA** | Installable as a Progressive Web App with bottom navigation, skeleton loading states, and safe-area support |
@@ -44,7 +44,7 @@
 │            │                │                 │          │
 │            ▼                ▼                 ▼          │
 │  ┌─────────────────┐  ┌──────────────────────────────┐  │
-│  │   PostgreSQL     │  │      Gemini 2.5 Flash API    │  │
+│  │   PostgreSQL     │  │    Gemini 3.1 Multimodal API │  │
 │  │  (Users, Pantry, │  │  ┌─────────┐  ┌──────────┐  │  │
 │  │   Recipes)       │  │  │ Vision  │  │  Text    │  │  │
 │  └─────────────────┘  │  │(Receipt)│  │ (Recipe) │  │  │
@@ -59,7 +59,7 @@
 
 - **Frontend**: Next.js 16 (App Router), React 19, TypeScript
 - **Styling**: Tailwind CSS v4, custom design system with glassmorphism + animations
-- **AI/ML**: Google Gemini 2.5 Flash (Vision API for receipt scanning, Text API for recipes)
+- **AI/ML**: Google Gemini 3.1 Flash-Lite (Multimodal for receipt scanning, Text for recipes)
 - **Database**: PostgreSQL with raw SQL queries via `pg`
 - **Auth**: NextAuth.js v4 with Credentials provider + bcrypt + JWT
 - **Validation**: Zod schema validation
@@ -117,7 +117,7 @@ Generate `AUTH_SECRET` with: `openssl rand -base64 32`
 scan-pan/
 ├── app/
 │   ├── api/
-│   │   ├── analyze/route.ts       # Gemini Vision receipt analysis
+│   │   ├── analyze/route.ts       # Gemini Multimodal receipt analysis
 │   │   ├── auth/[...nextauth]/    # NextAuth.js configuration
 │   │   └── recipe/route.ts        # Gemini recipe generation
 │   ├── pantry/page.tsx            # Pantry management (SSR)
