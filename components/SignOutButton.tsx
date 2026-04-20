@@ -8,10 +8,14 @@ export default function SignOutButton() {
         <button
             id="sign-out-btn"
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-            title="Sign Out"
+            className="w-full p-4 flex items-center justify-between hover:bg-red-50 transition-colors cursor-pointer group text-left"
         >
-            <LogOut size={18} />
+            <span className="font-medium text-red-500 group-hover:text-red-600 transition-colors">
+                Sign Out
+            </span>
+            <div className="p-2 text-stone-400 group-hover:text-red-500 rounded-full transition-colors">
+                <LogOut size={18} />
+            </div>
         </button>
     );
 }

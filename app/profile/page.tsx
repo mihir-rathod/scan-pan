@@ -83,12 +83,7 @@ export default async function ProfilePage() {
 
       {/* Actions */}
       <div className="bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden animate-slide-up delay-3">
-        <div className="p-4 flex items-center justify-between hover:bg-red-50 transition-colors cursor-pointer group">
-          <span className="font-medium text-red-500 group-hover:text-red-600 transition-colors">
-            Sign Out
-          </span>
-          <SignOutButton />
-        </div>
+        <SignOutButton />
       </div>
     </div>
   );

@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import PantryItem from "@/components/PantryItem";
 import ClearPantryButton from "@/components/ClearPantryButton";
 import AddItemButton from "@/components/AddItemButton";
-import ExpiryBanner from "@/components/ExpiryBanner";
 import { Search } from "lucide-react";
 
 export default async function PantryPage() {
@@ -20,20 +19,6 @@ export default async function PantryPage() {
     [session.user.id]
   );
 
-  // Compute items expiring within 3 days
-  const now = new Date();
-  const expiringItems = items?.filter((item: any) => {
-    if (!item.expiry) return false;
-    const expDate = new Date(item.expiry);
-    const diffDays = (expDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-    return diffDays <= 3 && diffDays >= 0;
-  }) || [];
-
-  const expiredItems = items?.filter((item: any) => {
-    if (!item.expiry) return false;
-    const expDate = new Date(item.expiry);
-    return expDate.getTime() < now.getTime();
-  }) || [];
 
   return (
     <div className="min-h-screen bg-surface p-4 pb-24">
@@ -50,10 +35,6 @@ export default async function PantryPage() {
         </div>
       </div>
 
-      {/* Expiry Banner */}
-      {(expiringItems.length > 0 || expiredItems.length > 0) && (
-        <ExpiryBanner expiringCount={expiringItems.length} expiredCount={expiredItems.length} />
-      )}
 
       {/* Items List */}
       <div className="grid gap-3 mt-4">

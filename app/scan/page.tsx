@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, ChangeEvent } from "react";
-import { Camera, Check, X, Loader2 } from "lucide-react";
+import { Camera, Check, X, Loader2, ScanLine, ShoppingBasket } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { addPantryItems } from "@/lib/pantry-actions";
@@ -25,10 +25,44 @@ export default function ScanPage() {
   const handleCapture = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setImage(url);
-      setScannedItems([]);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImage(e.target?.result as string);
+        setScannedItems([]);
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const compressImage = (dataUrl: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = dataUrl;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        // Max dimensions for OCR (1600px is usually plenty)
+        const MAX_DIM = 1600;
+        if (width > height && width > MAX_DIM) {
+          height *= MAX_DIM / width;
+          width = MAX_DIM;
+        } else if (height > MAX_DIM) {
+          width *= MAX_DIM / height;
+          height = MAX_DIM;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // 0.7 quality is a good balance for OCR
+        resolve(canvas.toDataURL("image/jpeg", 0.7));
+      };
+      img.onerror = (err) => reject(err);
+    });
   };
 
   const handleAnalyze = async () => {
@@ -38,37 +72,37 @@ export default function ScanPage() {
     setScannedItems([]);
 
     try {
-      const response = await fetch(image);
-      const blob = await response.blob();
+      // 1. Compress image first
+      const compressedImage = await compressImage(image);
 
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = async () => {
-        const base64data = reader.result;
+      // 2. Send to API
+      const apiResponse = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: compressedImage }),
+      });
 
-        const apiResponse = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: base64data }),
-        });
+      if (!apiResponse.ok) {
+        const errorData = await apiResponse.json();
+        throw new Error(errorData.error || "Failed to analyze receipt");
+      }
 
-        const result = await apiResponse.json();
+      const result = await apiResponse.json();
 
-        if (result.data && Array.isArray(result.data)) {
-          setScannedItems(
-            result.data.map((item: any) => ({
-              ...item,
-              selected: true,
-            }))
-          );
-        } else {
-          alert("Could not read the receipt. Please try a clearer photo.");
-        }
-        setLoading(false);
-      };
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Something went wrong analyzing the receipt.");
+      if (result.data && Array.isArray(result.data)) {
+        setScannedItems(
+          result.data.map((item: any) => ({
+            ...item,
+            selected: true,
+          }))
+        );
+      } else {
+        alert("The AI couldn't find items in this photo. Try a clearer close-up of the receipt.");
+      }
+    } catch (error: any) {
+      console.error("Analysis error:", error);
+      alert(error.message || "Something went wrong analyzing the receipt.");
+    } finally {
       setLoading(false);
     }
   };
@@ -154,23 +188,42 @@ export default function ScanPage() {
                 )}
               </>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-stone-50 transition-colors">
-                <div className="p-5 rounded-full bg-brand-50 mb-4">
-                  <Camera size={36} className="text-brand-500" />
+              <div className="flex flex-col items-center justify-center w-full h-full p-8">
+                <div className="p-6 rounded-full bg-stone-50 mb-8 border border-stone-100 animate-pulse">
+                  <ScanLine size={48} className="text-stone-300" />
                 </div>
-                <span className="font-semibold text-stone-700">Tap to Snap</span>
-                <span className="text-sm text-stone-400 mt-1">
-                  or upload a receipt photo
-                </span>
-                <input
-                  id="receipt-upload"
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={handleCapture}
-                />
-              </label>
+                
+                <div className="w-full flex flex-col gap-4">
+                  {/* Take Photo Button */}
+                  <label className="flex items-center justify-center gap-3 w-full py-4 bg-brand-500 text-white rounded-2xl font-bold shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95">
+                    <Camera size={22} />
+                    Take Photo
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={handleCapture}
+                    />
+                  </label>
+
+                  {/* Upload from Gallery Button */}
+                  <label className="flex items-center justify-center gap-3 w-full py-4 bg-white border-2 border-stone-100 text-stone-700 rounded-2xl font-bold shadow-sm hover:bg-stone-50 transition-all cursor-pointer active:scale-95">
+                    <ShoppingBasket size={22} className="text-stone-400" />
+                    Upload Gallery
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleCapture}
+                    />
+                  </label>
+                </div>
+                
+                <p className="text-xs text-stone-400 mt-6 text-center leading-relaxed">
+                  Tip: Make sure the receipt is flat and well-lit <br/> for the best AI accuracy.
+                </p>
+              </div>
             )}
           </div>
 

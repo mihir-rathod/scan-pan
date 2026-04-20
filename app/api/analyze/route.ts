@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { withRetry } from "@/lib/gemini-retry";
 
 export async function POST(req: Request) {
   try {
@@ -10,9 +11,10 @@ export async function POST(req: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-    const base64Data = image.includes("base64,") ? image.split("base64,")[1] : image;
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-3-flash-preview",
+      generationConfig: { responseMimeType: "application/json" }
+    });
 
     const prompt = `
       Analyze this image of a receipt or grocery items. 
@@ -23,24 +25,26 @@ export async function POST(req: Request) {
       Return ONLY a valid JSON array. Each object must have:
       - "name": string (Clean, human-readable name)
       - "quantity": string (e.g. "1 gal", "2 count")
-      - "expiry": string (estimated expiry date YYYY-MM-DD based on item type. e.g. Milk = today + 7 days, Bread = today + 5 days, Canned goods = today + 365 days)
       - "category": string (one of: "Produce", "Dairy", "Protein", "Grain", "Beverage", "Snack", "Other")
       
       Example output:
-      [{"name": "Whole Milk", "quantity": "1 gal", "expiry": "2025-01-20", "category": "Dairy"}]
+      [{"name": "Whole Milk", "quantity": "1 gal", "category": "Dairy"}]
       
       Do NOT wrap in markdown code blocks. Just raw JSON.
     `;
+    const base64Data = image.includes("base64,") ? image.split("base64,")[1] : image;
 
-    const result = await model.generateContent([
-      prompt,
-      {
-        inlineData: {
-          data: base64Data,
-          mimeType: "image/jpeg",
+    const result = await withRetry(() =>
+      model.generateContent([
+        prompt,
+        {
+          inlineData: {
+            data: base64Data,
+            mimeType: "image/jpeg",
+          },
         },
-      },
-    ]);
+      ])
+    );
 
     const response = await result.response;
     let text = response.text();
@@ -51,8 +55,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ data: items });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("AI Error:", error);
-    return NextResponse.json({ error: "Failed to analyze receipt" }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || "Failed to analyze receipt. Please try again." },
+      { status: 500 }
+    );
   }
 }

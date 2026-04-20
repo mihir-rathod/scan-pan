@@ -41,7 +41,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans antialiased`}>
-        <main className="pb-20">{children}</main>
+        <main>{children}</main>
         <BottomNav />
       </body>
     </html>

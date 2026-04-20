@@ -1,8 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "@/lib/db";
-import bcrypt from "bcrypt";
-import { z } from "zod";
+import bcrypt from "bcryptjs";
 
 export const authOptions = {
     providers: [
@@ -13,24 +12,37 @@ export const authOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                if (!credentials?.email || !credentials?.password) return null;
-
-                const results = await db.query("SELECT * FROM users WHERE email = $1", [credentials.email]);
-                const user = results.rows[0];
-
-                if (!user) return null;
-
-                const passwordsMatch = await bcrypt.compare(credentials.password, user.password_hash);
-
-                if (passwordsMatch) {
-                    // Return user object, ensuring ID is a string for NextAuth
-                    return {
-                        id: String(user.id),
-                        name: user.name,
-                        email: user.email,
-                    };
+                if (!credentials?.email || !credentials?.password) {
+                    console.log("AUTH_FAILURE: Missing credentials");
+                    return null;
                 }
-                return null;
+
+                try {
+                    const results = await db.query("SELECT * FROM users WHERE email = $1", [credentials.email]);
+                    const user = results.rows[0];
+
+                    if (!user) {
+                        console.log("AUTH_FAILURE: User not found", credentials.email);
+                        return null;
+                    }
+
+                    const passwordsMatch = await bcrypt.compare(credentials.password, user.password_hash);
+
+                    if (passwordsMatch) {
+                        console.log("AUTH_SUCCESS:", credentials.email);
+                        return {
+                            id: String(user.id),
+                            name: user.name,
+                            email: user.email,
+                        };
+                    } else {
+                        console.log("AUTH_FAILURE: Password mismatch", credentials.email);
+                        return null;
+                    }
+                } catch (error: any) {
+                    console.error("AUTH_ERROR during authorize callback:", error.message);
+                    return null;
+                }
             },
         }),
     ],
@@ -49,9 +61,9 @@ export const authOptions = {
         }
     },
     session: { strategy: "jwt" as const },
-    secret: process.env.AUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
     pages: {
-        signIn: '/login', // Custom Login Page
+        signIn: '/login',
     }
 };
 
