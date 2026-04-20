@@ -9,48 +9,9 @@ interface Props {
     id: number;
     name: string;
     quantity: string;
-    expiry: string | null;
     category?: string | null;
   };
 }
-
-function getExpiryStatus(expiry: string | null): "fresh" | "warning" | "expired" | null {
-  if (!expiry) return null;
-  const now = new Date();
-  const expDate = new Date(expiry);
-  const diffDays = (expDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
-  if (diffDays < 0) return "expired";
-  if (diffDays <= 3) return "warning";
-  return "fresh";
-}
-
-function getExpiryLabel(expiry: string | null): string {
-  if (!expiry) return "";
-  const now = new Date();
-  const expDate = new Date(expiry);
-  const diffDays = Math.ceil((expDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  if (diffDays < 0) return `Expired ${Math.abs(diffDays)}d ago`;
-  if (diffDays === 0) return "Expires today";
-  if (diffDays === 1) return "Expires tomorrow";
-  if (diffDays <= 7) return `Expires in ${diffDays}d`;
-  return new Date(expiry).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-const EXPIRY_STYLES = {
-  fresh: "bg-emerald-50 text-emerald-700 border-emerald-100",
-  warning: "bg-amber-50 text-amber-700 border-amber-100",
-  expired: "bg-red-50 text-red-600 border-red-100",
-};
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  Produce: "🥬",
-  Dairy: "🥛",
-  Protein: "🥩",
-  Grain: "🌾",
-  Beverage: "🥤",
-  Snack: "🍿",
-  Other: "📦",
-};
 
 export default function PantryItem({ item }: Props) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -58,10 +19,6 @@ export default function PantryItem({ item }: Props) {
 
   const [name, setName] = useState(item.name);
   const [qty, setQty] = useState(item.quantity);
-
-  const expiryStatus = getExpiryStatus(item.expiry);
-  const expiryLabel = getExpiryLabel(item.expiry);
-  const categoryEmoji = item.category ? CATEGORY_EMOJI[item.category] || "📦" : null;
 
   const handleDelete = async () => {
     if (!confirm("Delete this item?")) return;
@@ -116,9 +73,6 @@ export default function PantryItem({ item }: Props) {
       ) : (
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
-            {categoryEmoji && (
-              <span className="text-xl">{categoryEmoji}</span>
-            )}
             <div>
               <h3 className="font-semibold text-stone-900">{item.name}</h3>
               <p className="text-stone-400 text-sm">{item.quantity}</p>
@@ -126,14 +80,6 @@ export default function PantryItem({ item }: Props) {
           </div>
 
           <div className="flex items-center gap-2">
-            {expiryStatus && (
-              <span
-                className={`text-xs px-2.5 py-1 rounded-full font-medium border ${EXPIRY_STYLES[expiryStatus]}`}
-              >
-                {expiryLabel}
-              </span>
-            )}
-
             <button
               onClick={() => setIsEditing(true)}
               className="p-2 text-stone-300 hover:text-brand-500 hover:bg-brand-50 rounded-full transition-colors"

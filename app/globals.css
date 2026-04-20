@@ -237,3 +237,12 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #A8A29E;
 }
+
+/* ---- Scrollbar None (for filter rows) ---- */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}

@@ -38,8 +38,8 @@ export async function addPantryItems(items: any[]) {
 
     for (const item of items) {
         await db.query(
-            "INSERT INTO pantry_items (user_id, name, quantity, expiry, category) VALUES ($1, $2, $3, $4, $5)",
-            [session.user.id, item.name, item.quantity, item.expiry, item.category || null]
+            "INSERT INTO pantry_items (user_id, name, quantity, category) VALUES ($1, $2, $3, $4)",
+            [session.user.id, item.name, item.quantity, item.category || null]
         );
     }
     revalidatePath("/pantry");
@@ -48,15 +48,14 @@ export async function addPantryItems(items: any[]) {
 export async function addSinglePantryItem(item: {
     name: string;
     quantity: string;
-    expiry: string | null;
     category: string | null;
 }) {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) throw new Error("Unauthorized");
 
     await db.query(
-        "INSERT INTO pantry_items (user_id, name, quantity, expiry, category) VALUES ($1, $2, $3, $4, $5)",
-        [session.user.id, item.name, item.quantity, item.expiry, item.category]
+        "INSERT INTO pantry_items (user_id, name, quantity, category) VALUES ($1, $2, $3, $4)",
+        [session.user.id, item.name, item.quantity, item.category]
     );
     revalidatePath("/pantry");
     revalidatePath("/profile");

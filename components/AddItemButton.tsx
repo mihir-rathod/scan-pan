@@ -9,7 +9,6 @@ export default function AddItemButton() {
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("");
-  const [expiry, setExpiry] = useState("");
   const [category, setCategory] = useState("");
 
   const CATEGORIES = ["Produce", "Dairy", "Protein", "Grain", "Beverage", "Snack", "Other"];
@@ -23,13 +22,11 @@ export default function AddItemButton() {
       await addSinglePantryItem({
         name: name.trim(),
         quantity: quantity.trim() || "1",
-        expiry: expiry || null,
         category: category || null,
       });
       // Reset form
       setName("");
       setQuantity("");
-      setExpiry("");
       setCategory("");
       setIsOpen(false);
     } catch (err) {
@@ -93,31 +90,17 @@ export default function AddItemButton() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-stone-600 mb-1.5">
-                    Quantity
-                  </label>
-                  <input
-                    id="add-item-quantity"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                    className="w-full border border-stone-200 rounded-xl p-3 text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent transition-all"
-                    placeholder="e.g. 1 gal"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-stone-600 mb-1.5">
-                    Expiry Date
-                  </label>
-                  <input
-                    id="add-item-expiry"
-                    type="date"
-                    value={expiry}
-                    onChange={(e) => setExpiry(e.target.value)}
-                    className="w-full border border-stone-200 rounded-xl p-3 text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent transition-all"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-600 mb-1.5">
+                  Quantity
+                </label>
+                <input
+                  id="add-item-quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  className="w-full border border-stone-200 rounded-xl p-3 text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent transition-all"
+                  placeholder="e.g. 1 gal"
+                />
               </div>
 
               {/* Category pills */}
