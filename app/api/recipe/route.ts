@@ -1,16 +1,28 @@
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { withRetry } from "@/lib/gemini-retry";
 
 export async function POST(req: Request) {
   try {
-    const { ingredients, strictMode = true } = await req.json();
+    const { ingredients, strictMode = true, cuisineFilter = "", dietFilter = "" } = await req.json();
 
     if (!ingredients) {
       return NextResponse.json({ error: "No ingredients provided" }, { status: 400 });
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-3-flash-preview",
+      generationConfig: { responseMimeType: "application/json" }
+    });
+
+    const cuisineInstruction = cuisineFilter
+      ? `The recipe MUST be ${cuisineFilter} cuisine. Use authentic ingredients, techniques, and flavors from that cuisine.`
+      : "";
+
+    const dietInstruction = dietFilter
+      ? `The recipe MUST strictly follow the ${dietFilter} dietary requirement.`
+      : "";
 
     const strictPrompt = `
       I have ONLY these ingredients: ${ingredients}.
@@ -29,6 +41,8 @@ export async function POST(req: Request) {
 
     const prompt = `
       ${strictMode ? strictPrompt : flexiblePrompt}
+      ${cuisineInstruction}
+      ${dietInstruction}
 
       Return a JSON object with this exact schema:
       {
@@ -41,7 +55,7 @@ export async function POST(req: Request) {
       Do NOT wrap the json in markdown code blocks.
     `;
 
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt));
     const response = await result.response;
     let text = response.text();
 
@@ -51,8 +65,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ recipe: data });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Recipe AI Error:", error);
-    return NextResponse.json({ error: "Failed to generate recipe" }, { status: 500 });
+    return NextResponse.json({ error: error?.message || "Failed to generate recipe" }, { status: 500 });
   }
 }
