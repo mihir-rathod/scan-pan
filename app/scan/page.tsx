@@ -25,10 +25,44 @@ export default function ScanPage() {
   const handleCapture = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setImage(url);
-      setScannedItems([]);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImage(e.target?.result as string);
+        setScannedItems([]);
+      };
+      reader.readAsDataURL(file);
     }
+  };
+
+  const compressImage = (dataUrl: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.src = dataUrl;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        // Max dimensions for OCR (1600px is usually plenty)
+        const MAX_DIM = 1600;
+        if (width > height && width > MAX_DIM) {
+          height *= MAX_DIM / width;
+          width = MAX_DIM;
+        } else if (height > MAX_DIM) {
+          width *= MAX_DIM / height;
+          height = MAX_DIM;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // 0.7 quality is a good balance for OCR
+        resolve(canvas.toDataURL("image/jpeg", 0.7));
+      };
+      img.onerror = (err) => reject(err);
+    });
   };
 
   const handleAnalyze = async () => {
@@ -38,37 +72,37 @@ export default function ScanPage() {
     setScannedItems([]);
 
     try {
-      const response = await fetch(image);
-      const blob = await response.blob();
+      // 1. Compress image first
+      const compressedImage = await compressImage(image);
 
-      const reader = new FileReader();
-      reader.readAsDataURL(blob);
-      reader.onloadend = async () => {
-        const base64data = reader.result;
+      // 2. Send to API
+      const apiResponse = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: compressedImage }),
+      });
 
-        const apiResponse = await fetch("/api/analyze", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image: base64data }),
-        });
+      if (!apiResponse.ok) {
+        const errorData = await apiResponse.json();
+        throw new Error(errorData.error || "Failed to analyze receipt");
+      }
 
-        const result = await apiResponse.json();
+      const result = await apiResponse.json();
 
-        if (result.data && Array.isArray(result.data)) {
-          setScannedItems(
-            result.data.map((item: any) => ({
-              ...item,
-              selected: true,
-            }))
-          );
-        } else {
-          alert("Could not read the receipt. Please try a clearer photo.");
-        }
-        setLoading(false);
-      };
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Something went wrong analyzing the receipt.");
+      if (result.data && Array.isArray(result.data)) {
+        setScannedItems(
+          result.data.map((item: any) => ({
+            ...item,
+            selected: true,
+          }))
+        );
+      } else {
+        alert("The AI couldn't find items in this photo. Try a clearer close-up of the receipt.");
+      }
+    } catch (error: any) {
+      console.error("Analysis error:", error);
+      alert(error.message || "Something went wrong analyzing the receipt.");
+    } finally {
       setLoading(false);
     }
   };
@@ -166,7 +200,6 @@ export default function ScanPage() {
                   id="receipt-upload"
                   type="file"
                   accept="image/*"
-                  capture="environment"
                   className="hidden"
                   onChange={handleCapture}
                 />
