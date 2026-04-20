@@ -317,7 +317,7 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
       {!recipeData && (
         <button
           id="generate-recipe-btn"
-          onClick={handleGenerate}
+          onClick={() => handleGenerate()}
           disabled={loading || !ingredients}
           className="w-full py-4 rounded-2xl font-semibold shadow-md transition-all btn-press disabled:opacity-50 disabled:cursor-not-allowed gradient-brand text-white hover:shadow-lg hover:-translate-y-0.5 disabled:hover:translate-y-0"
         >
@@ -402,7 +402,7 @@ export default function GenerateRecipeButton({ ingredients }: { ingredients: str
           {/* Actions */}
           <div className="flex border-b border-stone-100">
             <button
-              onClick={handleGenerate}
+              onClick={() => handleGenerate()}
               disabled={loading}
               className="flex-1 py-4 flex items-center justify-center gap-2 hover:bg-stone-50 text-stone-500 transition-colors font-medium"
             >
