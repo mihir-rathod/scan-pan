@@ -14,10 +14,12 @@
 
 | Feature | Description |
 |---------|-------------|
-| 📸 **AI Receipt Scanner** | Snap a photo of any grocery receipt — Gemini 3.1 Multimodal AI extracts items, cleans up names, estimates expiry dates, and categorizes each item automatically |
-| 🧺 **Smart Pantry Tracker** | Full CRUD management of pantry items with color-coded expiry indicators (expired/expiring/fresh), category tagging, and manual add support |
-| 👨‍🍳 **AI Recipe Generator** | Get creative, single-click recipe suggestions powered by Gemini 3.1 Flash-Lite — toggle between **Pantry Only** mode (strict) or **Open Suggestions** mode that may recommend 1–2 extra ingredients to buy |
+| 📸 **AI Receipt Scanner** | Snap a photo of any grocery receipt — Gemini 3.1 Multimodal AI extracts items, cleans up names, and categorizes each item automatically |
+| 🧺 **Smart Pantry Tracker** | Full CRUD management of pantry items with a minimalist layout, category tagging, and manual add support |
+| 👨‍🍳 **AI Recipe Generator** | Get creative recipe suggestions powered by Gemini 3.1. Choose from 9 global cuisines, 5 dietary constraints, and toggle between strict **Pantry Only** or **Open Suggestions** modes |
+| 💬 **Chef AI Chatbot** | Context-aware, multi-turn AI assistant built right into the recipe viewer. Ask for substitutions, variations, or diet adjustments, and watch the recipe dynamically update on-screen |
 | 📖 **Personal Cookbook** | Save your favorite AI-generated recipes with full ingredients and Markdown-rendered instructions |
+| 🚀 **Hardened Build** | Integrated exponential backoff API retry logic, automatic state synchronization across sessions, and structural JSON streaming for minimal latency |
 | 🔐 **Secure Authentication** | Email/password auth with bcrypt hashing and JWT sessions via NextAuth.js |
 | 📱 **Mobile-First PWA** | Installable as a Progressive Web App with bottom navigation, skeleton loading states, and safe-area support |
 
@@ -46,9 +48,9 @@
 │  ┌─────────────────┐  ┌──────────────────────────────┐  │
 │  │   PostgreSQL     │  │    Gemini 3.1 Multimodal API │  │
 │  │  (Users, Pantry, │  │  ┌─────────┐  ┌──────────┐  │  │
-│  │   Recipes)       │  │  │ Vision  │  │  Text    │  │  │
-│  └─────────────────┘  │  │(Receipt)│  │ (Recipe) │  │  │
-│                        │  └─────────┘  └──────────┘  │  │
+│  │   Recipes)       │  │  │ Vision  │  │  Text &  │  │  │
+│  │                 │  │  │(Receipt)│  │  Chat    │  │  │
+│  └─────────────────┘  │  └─────────┘  └──────────┘  │  │
 │                        └──────────────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -59,7 +61,7 @@
 
 - **Frontend**: Next.js 16 (App Router), React 19, TypeScript
 - **Styling**: Tailwind CSS v4, custom design system with glassmorphism + animations
-- **AI/ML**: Google Gemini 3.1 Flash-Lite (Multimodal for receipt scanning, Text for recipes)
+- **AI/ML**: Google Gemini 3.1 Flash Preview (Multimodal for scanning, Text/Chat for recipes)
 - **Database**: PostgreSQL with raw SQL queries via `pg`
 - **Auth**: NextAuth.js v4 with Credentials provider + bcrypt + JWT
 - **Validation**: Zod schema validation
@@ -118,11 +120,12 @@ scan-pan/
 ├── app/
 │   ├── api/
 │   │   ├── analyze/route.ts       # Gemini Multimodal receipt analysis
+│   │   ├── chat/route.ts          # Chef AI context-aware chatbot
 │   │   ├── auth/[...nextauth]/    # NextAuth.js configuration
 │   │   └── recipe/route.ts        # Gemini recipe generation
 │   ├── pantry/page.tsx            # Pantry management (SSR)
 │   ├── scan/page.tsx              # Receipt scanner with review step
-│   ├── recipes/page.tsx           # AI recipe suggestions
+│   ├── recipes/page.tsx           # AI recipe suggestions & filters
 │   ├── saved/page.tsx             # Personal cookbook
 │   ├── profile/page.tsx           # User profile & stats
 │   ├── login/page.tsx             # Authentication
@@ -132,13 +135,13 @@ scan-pan/
 │   └── globals.css                # Design system & animations
 ├── components/
 │   ├── BottomNav.tsx              # Glassmorphism navigation bar
-│   ├── PantryItem.tsx             # Item card with expiry tracking
+│   ├── PantryItem.tsx             # Item card with categorization
 │   ├── AddItemButton.tsx          # Manual add with slide-up modal
-│   ├── ExpiryBanner.tsx           # Expiry notification banners
 │   ├── SavedRecipeCard.tsx        # Collapsible recipe card
 │   └── ...
 ├── lib/
 │   ├── db.ts                      # PostgreSQL connection pool
+│   ├── gemini-retry.ts            # Exponential backoff utility for AI APIs
 │   ├── pantry-actions.ts          # Server actions for pantry CRUD
 │   ├── recipe-actions.ts          # Server actions for recipes
 │   └── actions.ts                 # Auth server actions
@@ -169,5 +172,3 @@ DATABASE_URL="your-supabase-url" node scripts/init-db.js
 ```
 
 5. Deploy — the app will be live at `your-project.vercel.app`
-
-
