@@ -10,7 +10,7 @@ export async function POST(req: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
-    const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.1-flash-lite" });
 
     const base64Data = image.includes("base64,") ? image.split("base64,")[1] : image;
 
@@ -51,8 +51,11 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ data: items });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("AI Error:", error);
-    return NextResponse.json({ error: "Failed to analyze receipt" }, { status: 500 });
+    return NextResponse.json(
+      { error: error?.message || "Failed to analyze receipt. Please try again." },
+      { status: 500 }
+    );
   }
 }

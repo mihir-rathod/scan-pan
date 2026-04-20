@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, ChangeEvent } from "react";
-import { Camera, Check, X, Loader2 } from "lucide-react";
+import { Camera, Check, X, Loader2, ScanLine, ShoppingBasket } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { addPantryItems } from "@/lib/pantry-actions";
@@ -188,22 +188,42 @@ export default function ScanPage() {
                 )}
               </>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-stone-50 transition-colors">
-                <div className="p-5 rounded-full bg-brand-50 mb-4">
-                  <Camera size={36} className="text-brand-500" />
+              <div className="flex flex-col items-center justify-center w-full h-full p-8">
+                <div className="p-6 rounded-full bg-stone-50 mb-8 border border-stone-100 animate-pulse">
+                  <ScanLine size={48} className="text-stone-300" />
                 </div>
-                <span className="font-semibold text-stone-700">Tap to Snap</span>
-                <span className="text-sm text-stone-400 mt-1">
-                  or upload a receipt photo
-                </span>
-                <input
-                  id="receipt-upload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleCapture}
-                />
-              </label>
+                
+                <div className="w-full flex flex-col gap-4">
+                  {/* Take Photo Button */}
+                  <label className="flex items-center justify-center gap-3 w-full py-4 bg-brand-500 text-white rounded-2xl font-bold shadow-md hover:shadow-lg transition-all cursor-pointer active:scale-95">
+                    <Camera size={22} />
+                    Take Photo
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={handleCapture}
+                    />
+                  </label>
+
+                  {/* Upload from Gallery Button */}
+                  <label className="flex items-center justify-center gap-3 w-full py-4 bg-white border-2 border-stone-100 text-stone-700 rounded-2xl font-bold shadow-sm hover:bg-stone-50 transition-all cursor-pointer active:scale-95">
+                    <ShoppingBasket size={22} className="text-stone-400" />
+                    Upload Gallery
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleCapture}
+                    />
+                  </label>
+                </div>
+                
+                <p className="text-xs text-stone-400 mt-6 text-center leading-relaxed">
+                  Tip: Make sure the receipt is flat and well-lit <br/> for the best AI accuracy.
+                </p>
+              </div>
             )}
           </div>
 
